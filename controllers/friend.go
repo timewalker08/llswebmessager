@@ -1,9 +1,9 @@
 package controllers
 
 import (
-	"llswebmessager/models"
+    "llswebmessager/models"
     "github.com/astaxie/beego"
-	"github.com/astaxie/beego/orm"
+    "github.com/astaxie/beego/orm"
     _ "github.com/go-sql-driver/mysql"
 )
 
@@ -12,20 +12,14 @@ type FriendController struct {
 }
 
 func (this *FriendController) List() {
-    am := GetUser(this)
-	if am == nil {
-	    this.Redirect("/account/login?err=Please login first.", 302)
-	}
+    am := this.GetLoginAMAndRedictToLoginPageIfNotLoggedin()
     
-	var friendStatus models.Friendstatus
-    friendStatus.Id = 1
-	
     //query friends from user id
-	o := orm.NewOrm()
+    o := orm.NewOrm()
     var fs []*models.Friend
-    o.QueryTable("friend").Filter("User", am.User.Id).Filter("Friendstatus", &friendStatus).RelatedSel().All(&fs)
+    o.QueryTable("friend").Filter("User", am.User.Id).Filter("Friendstatus", models.NormalFriendStatus).RelatedSel().All(&fs)
 
-	this.Data["FriendList"] = fs;
+    this.Data["FriendList"] = fs;
     this.TplName = "friendlist.tpl"
 }
 
@@ -44,7 +38,7 @@ func (this *FriendController) QueryName() {
 func (this *FriendController) AddFriend() {
     var name string
     this.Ctx.Input.Bind(&name, "name")
-    am := GetUser(this)
+    am := this.GetLoginAMAndRedictToLoginPageIfNotLoggedin()
     err := am.AddNewFriend(name)
     if err == nil {
       this.Data["json"] = models.WebApiResult{Code: 0}
@@ -59,17 +53,25 @@ func (this *FriendController) AddFriend() {
 func (this *FriendController) DeleteFriend() {
     var name string
     this.Ctx.Input.Bind(&name, "name")
-	am := GetUser(this)
+    am := this.GetLoginAMAndRedictToLoginPageIfNotLoggedin()
     am.DeleteFriendByName(name)
     this.Data["json"] = models.WebApiResult{Code: 0}
     this.ServeJSON()
 }
 
-func GetUser(ctrl *FriendController) *models.AccountManager {
-    am := ctrl.GetSession(models.LoginSessionKey)
-	if (am == nil) {
-	    return nil
-	}
-	return am.(*models.AccountManager)
+func (this *FriendController)GetLoginAM() *models.AccountManager {
+    am := this.GetSession(models.LoginSessionKey)
+    if (am == nil) {
+        return nil
+    }
+    return am.(*models.AccountManager)
 }
 
+func (this *FriendController)GetLoginAMAndRedictToLoginPageIfNotLoggedin() *models.AccountManager {
+    var am = this.GetLoginAM()
+    if am == nil {
+        this.Redirect("/account/login?err=Please login first.", 302)
+        return nil
+    }
+    return am
+}
