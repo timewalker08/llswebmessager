@@ -59,7 +59,7 @@
                if (confirm("Are you sure to delete friend " + fname) == true) {
                  $.ajax({
                    type: "post",
-                   url: "/friend/delete?name=" + fname,
+                   url: "/friend/remove?name=" + fname,
                    async: true,
                    success: function(data) {
                      if (data != null && data.Code == 0) {

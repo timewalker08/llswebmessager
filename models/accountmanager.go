@@ -3,7 +3,7 @@ package models
 import (
     "fmt"
     "time"
-    //"webmessagertest/tools"
+    //"llswebmessager/tools"
     "github.com/astaxie/beego/orm"
     _ "github.com/go-sql-driver/mysql"
 )

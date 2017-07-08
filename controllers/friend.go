@@ -1,7 +1,6 @@
 package controllers
 
 import (
-    "fmt"
 	"llswebmessager/models"
     "github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
@@ -13,7 +12,10 @@ type FriendController struct {
 }
 
 func (this *FriendController) List() {
-    fmt.Println("In friend list")
+    am := GetUser(this)
+	if am == nil {
+	    this.Redirect("/account/login?err=Please login first.", 302)
+	}
     
 	var friendStatus models.Friendstatus
     friendStatus.Id = 1
@@ -21,16 +23,9 @@ func (this *FriendController) List() {
     //query friends from user id
 	o := orm.NewOrm()
     var fs []*models.Friend
-    num, err := o.QueryTable("friend").Filter("User", 2).Filter("Friendstatus", &friendStatus).RelatedSel().All(&fs)
-    if err == nil {
-        fmt.Printf("%d friends read\n", num)
-        for _, ff := range fs {
-            fmt.Printf("Id: %d, UserName: %s, FriendName: %s \n", ff.Id, ff.User.Name, ff.Friend.Name)
-        }
-    }
-	
-	this.Data["FriendList"] = fs;
+    o.QueryTable("friend").Filter("User", am.User.Id).Filter("Friendstatus", &friendStatus).RelatedSel().All(&fs)
 
+	this.Data["FriendList"] = fs;
     this.TplName = "friendlist.tpl"
 }
 
@@ -49,8 +44,7 @@ func (this *FriendController) QueryName() {
 func (this *FriendController) AddFriend() {
     var name string
     this.Ctx.Input.Bind(&name, "name")
-    var user = models.User{Id: 2}
-    var am = models.AccountManager{User: &user}
+    am := GetUser(this)
     err := am.AddNewFriend(name)
     if err == nil {
       this.Data["json"] = models.WebApiResult{Code: 0}
@@ -63,12 +57,19 @@ func (this *FriendController) AddFriend() {
 // [Post] Web api for deleting friend by name.
 // Url: friend/delete
 func (this *FriendController) DeleteFriend() {
-    fmt.Println("--------")
     var name string
     this.Ctx.Input.Bind(&name, "name")
-    var user = models.User{Id: 2}
-    var am = models.AccountManager{User: &user}
+	am := GetUser(this)
     am.DeleteFriendByName(name)
     this.Data["json"] = models.WebApiResult{Code: 0}
     this.ServeJSON()
 }
+
+func GetUser(ctrl *FriendController) *models.AccountManager {
+    am := ctrl.GetSession(models.LoginSessionKey)
+	if (am == nil) {
+	    return nil
+	}
+	return am.(*models.AccountManager)
+}
+
