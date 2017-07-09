@@ -1,9 +1,10 @@
 package controllers
 
 import (
+    "fmt"
     "llswebmessager/models"
     "github.com/astaxie/beego"
-    "github.com/astaxie/beego/orm"
+    //"github.com/astaxie/beego/orm"
     _ "github.com/go-sql-driver/mysql"
 )
 
@@ -14,12 +15,28 @@ type FriendController struct {
 func (this *FriendController) List() {
     am := this.GetLoginAMAndRedictToLoginPageIfNotLoggedin()
     
-    //query friends from user id
-    o := orm.NewOrm()
-    var fs []*models.Friend
-    o.QueryTable("friend").Filter("User", am.User.Id).Filter("Friendstatus", models.NormalFriendStatus).RelatedSel().All(&fs)
+    fs, err := am.FriendManager.GetFriends()
+    if err != nil {
+	    fmt.Printf("Error: %s\n", err.Error())
+	} else {
+	    fmt.Printf("get %d friends\n", len(fs))
+	}
+	mmp, _ := am.MessageManager.GetUnReadMessageCount()
+	
+	var fcs []*models.FriendWithUnReadCount// = make([]*models.FriendWithUnReadCount)
+	if (fs != nil && len(fs) > 0) {
+	    for _, f := range fs {
+		    count := 0
+			if cc, ok := (*mmp)[f.Friend.Id]; ok {
+			    count = cc
+			}
+			fmt.Printf("Friend id: %d,Friend name: %s, unreadcount: %d\n", f.Friend.Id, f.Friend.Name, count)
+	        fcs = append(fcs, &models.FriendWithUnReadCount{Friend: f, UnreadCount: count})
+		}
+	}
 
-    this.Data["FriendList"] = fs;
+	this.Data["UserName"] = am.User.Name
+    this.Data["FriendList"] = fcs;
     this.TplName = "friendlist.tpl"
 }
 
@@ -46,7 +63,7 @@ func (this *FriendController) AddFriend() {
     if err == nil {
       this.Data["json"] = models.WebApiResult{Code: 0}
     }else {
-      this.Data["json"] = models.WebApiResult{Code: 0, Msg: err.Error()}
+      this.Data["json"] = models.WebApiResult{Code: -1, Msg: err.Error()}
     }
     this.ServeJSON()
 }

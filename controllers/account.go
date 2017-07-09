@@ -53,7 +53,7 @@ func (this *AccountController) RegisterUser() {
     if (!created) {
         this.Redirect("/account/register?err=" + err.Error(), 302)
     } else {
-	    this.SetSession(models.LoginSessionKey, &models.AccountManager{User: user})
+	    this.SetSession(models.LoginSessionKey, &models.AccountManager{User: user, FriendManager: &models.FriendManager{User: user}, MessageManager: &models.MessageManager{User: user}})
 	}
     
     this.Redirect("/friend/list", 302)
@@ -70,7 +70,7 @@ func (this *AccountController) LoginUser() {
 	if !ret {
         this.Redirect("/account/login?err=" + err.Error(), 302)
     } else {
-	    this.SetSession(models.LoginSessionKey, &models.AccountManager{User: user})
+	    this.SetSession(models.LoginSessionKey, &models.AccountManager{User: user, FriendManager: &models.FriendManager{User: user}, MessageManager: &models.MessageManager{User: user}})
 	}
     
     this.Redirect("/friend/list", 302)

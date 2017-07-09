@@ -10,6 +10,7 @@ import (
 
 type AccountManager struct {
     User *User
+	FriendManager *FriendManager
 	MessageManager *MessageManager
 }
 
@@ -84,7 +85,14 @@ func (this *AccountManager) GetUnReadMessagesByPage(fromName string, page int, p
 	    return nil, &AccountNotExistError{AccountName: fromName}
 	}
 	
-    return this.MessageManager.GetUnReadMessagesByPage(int(friend.Id), page, pageSize)
+    msgs, err := this.MessageManager.GetUnReadMessagesByPage(friend.Id, page, pageSize)
+	if err == nil {
+	    err = this.MessageManager.SetLastReadTime(friend.Id, time.Now())
+	}
+	if err != nil {
+	    return nil, &CommonMessageError{ErrorMessage: fmt.Sprintf("Some error occurred when getting unread messages, error detail: %s", err.Error())}
+	}
+	return msgs, nil
 }
 
 func createOrUpdateFriend(friend *Friend) bool {

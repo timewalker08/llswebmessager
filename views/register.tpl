@@ -8,16 +8,20 @@
 </head>
 
 <body>
-  <header>
-    <h2>Register</h2>
-  </header>
-  {{if .HasError}}
-  <div>
-      <div class="alert alert-danger" role="alert">{{.ErrorMsg}}</div>
-  </div>
-  {{end}}
   <div class="row">
-    <div class="col-md-6">
+      <div class="col-md-4 col-md-offset-1">
+         <h1 class="logo">Login</h1>
+	  </div>
+  </div>
+  <div class="row">
+      {{if .HasError}}
+      <div class="col-md-10 col-md-offset-1">
+          <div class="alert alert-danger" role="alert">{{.ErrorMsg}}</div>
+      </div>
+      {{end}}
+  </div>
+  <div class="row">
+    <div class="col-md-6 col-md-offset-1">
         <form action="/account/registeruser" method="post">
             <div class="form-group">
               <label for="UserName">User name</label>

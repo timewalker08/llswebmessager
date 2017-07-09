@@ -6,8 +6,8 @@ import (
 )
 
 type User struct {
-    Id          int64
-    Name    string
+    Id          int
+    Name        string
     PasswordMd5 string
     CreatedAt   time.Time
     Friend      []*Friend `orm:"reverse(many)"`
@@ -16,7 +16,7 @@ type User struct {
 
 type Friendstatus struct {
     Id          int
-    Name        string
+    StatusName        string
 }
 
 type Friend struct {
@@ -25,6 +25,11 @@ type Friend struct {
     Friend       *User `orm:"rel(fk)"`
     Friendstatus *Friendstatus `orm:"rel(fk)"`
     CreatedAt   time.Time
+}
+
+type FriendWithUnReadCount struct {
+    Friend *Friend
+	UnreadCount int
 }
 
 type Messagestatus struct {
