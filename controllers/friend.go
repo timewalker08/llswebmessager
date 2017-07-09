@@ -39,6 +39,9 @@ func (this *FriendController) AddFriend() {
     var name string
     this.Ctx.Input.Bind(&name, "name")
     am := this.GetLoginAMAndRedictToLoginPageIfNotLoggedin()
+	if am == nil {
+	    return;
+	}
     err := am.AddNewFriend(name)
     if err == nil {
       this.Data["json"] = models.WebApiResult{Code: 0}

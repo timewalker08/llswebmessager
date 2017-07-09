@@ -10,12 +10,12 @@ import (
 
 type AccountManager struct {
     User *User
+	MessageManager *MessageManager
 }
 
 func (this *AccountManager) AddNewFriend(name string) error {
     if (this.User == nil) {
-        ce := CommonError {ErrorMsg: "User is not set!"}
-        return &ce
+        return &CommonError {ErrorMsg: "User is not set!"}
     }
     
     var friend Friend
@@ -53,6 +53,38 @@ func (this *AccountManager) DeleteFriendByName(name string) (bool, error) {
     fmt.Printf("friend %s of %s is deleted\n", name, this.User.Name)
     
     return true, nil
+}
+
+func (this *AccountManager) SendMessage(name string, msgstr string) (*Message, error) {
+    friend := QueryUserByName(name)
+	if friend == nil {
+	    return nil, &AccountNotExistError{AccountName: name}
+	}
+	
+	msg := new(Message)
+	msg.From = this.User
+	msg.To = friend
+	msg.Msg = msgstr
+	msg.Messagestatus = NormalMessagestatus
+	msg.CreatedAt = time.Now()
+	
+	return msg, this.MessageManager.SendMessage(msg)
+}
+
+func (this *AccountManager) DeleteMessage(msgId int) error {
+    msg := new(Message)
+	msg.Id = msgId
+	msg.Messagestatus = DeletedMessagestatus
+    return this.MessageManager.UpdateMessageStatus(msg)
+}
+
+func (this *AccountManager) GetUnReadMessagesByPage(fromName string, page int, pageSize int) ([]*Message, error) {
+    friend := QueryUserByName(fromName)
+	if friend == nil {
+	    return nil, &AccountNotExistError{AccountName: fromName}
+	}
+	
+    return this.MessageManager.GetUnReadMessagesByPage(int(friend.Id), page, pageSize)
 }
 
 func createOrUpdateFriend(friend *Friend) bool {
