@@ -63,6 +63,7 @@ func (this *FriendController) AddFriend() {
     if err == nil {
       this.Data["json"] = models.WebApiResult{Code: 0}
     }else {
+	  
       this.Data["json"] = models.WebApiResult{Code: -1, Msg: err.Error()}
     }
     this.ServeJSON()

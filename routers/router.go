@@ -15,7 +15,7 @@ func init() {
 	beego.Router("/friend/queryname",&controllers.FriendController{},"get:QueryName")
 	beego.Router("/friend/add",&controllers.FriendController{},"post:AddFriend")
 	beego.Router("/friend/remove",&controllers.FriendController{},"post:DeleteFriend")
-	beego.Router("/message/unread",&controllers.MessageController{},"get:GetUnreadMessages")
+	beego.Router("/message/all",&controllers.MessageController{},"get:GetMessages")
 	beego.Router("/message/new",&controllers.MessageController{},"post:SendMessage")
 	beego.Router("/message/remove",&controllers.MessageController{},"post:DeleteMessage")
 }

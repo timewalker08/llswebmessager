@@ -42,69 +42,15 @@
                            if (data != null && data.Code == 0) {
                                alert("Succeeded");
                                $("#SearchUserResult").modal("hide");
-                           }
+							   var str = '<li class="list-group-item context friend-item"><span class="badge unread-count">0</span><span class="friendname" data-name="' + newName + '">' + newName + '</span></li>'
+							   $("#FriendList").append(str);
+							   FuncFriendItem();
+                           } else {
+						       alert(data.Msg)
+						   }
                        }
                    });
                }
-           });
-           
-           $('.context').contextmenu({
-             target:'#context-menu', 
-             before: function(e,context) {
-               // execute code before context menu if shown
-               // alert($("span.friendname", $(e.target)).text());
-               $("#DeleteFriend").attr("data-name", $("span.friendname", $(e.target)).text());
-             },
-             onItem: function(context,e) {
-               // execute on menu item selection
-               var fname = $(e.target).attr("data-name");
-               if (confirm("Are you sure to delete friend " + fname) == true) {
-                 $.ajax({
-                   type: "post",
-                   url: "/friend/remove?name=" + fname,
-                   async: true,
-                   success: function(data) {
-                     if (data != null && data.Code == 0) {
-                        alert("Succeeded");
-                        var selectedSpan = $("span.friendname[data-name='" + fname + "']", $("ul#FriendList"));
-                        var selectedLi = $(selectedSpan).parents("li");
-                        $(selectedLi).remove();
-                     }
-                   }
-                 });
-               }
-             }
-           });
-           
-           $("li.friend-item").click(function(e) {
-             var name = $("span.friendname", this).attr("data-name");
-             currentName = name
-             $.ajax({
-               type: "get",
-               url: "/message/unread?name=" + name,
-               async: true,
-               success: function(data) {
-                 //alert(JSON.stringify(data));
-                 $("#MsgList").children().remove();
-                 $("span.unread-count", this).html('0');
-                 if (data.length > 0) {
-                   $.each(data, function(i, n) {
-                     var isSelf = n.From.Name != name;
-                     var str = '<li class="list-group-item msg-item';
-                     if(isSelf){
-                         str += ' list-group-item-success self-msg-context" style="text-align:right;"';
-                     } else {
-                         str += ' list-group-item-warning"';
-                     }
-                     str += ' data-msg-id="' + n.Id + '">';
-                     str += n.Msg;
-                     str += '</li>'
-                     $("#MsgList").append(str);
-                   });
-				   FuncMsgContextMenu();
-                 }
-               }
-             });
            });
            
            $("#SendNewMessage").click(function(e) {
@@ -130,6 +76,8 @@
                    }
                });
            });
+		   
+		   FuncFriendItem();
        });
 	   
 	   function FuncMsgContextMenu() {
@@ -162,6 +110,69 @@
              }
            });
 	   }
+	   
+	   function FuncFriendItem() {
+	       $("li.friend-item").click(function(e) {
+             var name = $("span.friendname", this).attr("data-name");
+             currentName = name
+		     $("#CurrentChatName").html(name)
+             $("#MsgList").children().remove();
+			 $("span.unread-count", this).html('0');
+             $.ajax({
+               type: "get",
+               url: "/message/all?name=" + name,
+               async: true,
+               success: function(data) {
+                 if (data.length > 0) {
+                   $.each(data, function(i, n) {
+                     var isSelf = n.From.Name != name;
+                     var str = '<li class="list-group-item msg-item';
+                     if(isSelf){
+                         str += ' list-group-item-success self-msg-context" style="text-align:right;"';
+                     } else {
+                         str += ' list-group-item-warning"';
+                     }
+                     str += ' data-msg-id="' + n.Id + '">';
+                     str += n.Msg;
+                     str += '</li>'
+                     $("#MsgList").append(str);
+                   });
+				   FuncMsgContextMenu();
+                 }
+               }
+             });
+           });
+		   
+		   $('.context').contextmenu({
+             target:'#context-menu', 
+             before: function(e,context) {
+               // execute code before context menu if shown
+               // alert($("span.friendname", $(e.target)).text());
+               $("#DeleteFriend").attr("data-name", $("span.friendname", $(e.target)).text());
+             },
+             onItem: function(context,e) {
+               // execute on menu item selection
+               var fname = $(e.target).attr("data-name");
+               if (confirm("Are you sure to delete friend " + fname) == true) {
+                 $.ajax({
+                   type: "post",
+                   url: "/friend/remove?name=" + fname,
+                   async: true,
+                   success: function(data) {
+                     if (data != null && data.Code == 0) {
+                        alert("Succeeded");
+                        var selectedSpan = $("span.friendname[data-name='" + fname + "']", $("ul#FriendList"));
+                        var selectedLi = $(selectedSpan).parents("li");
+                        $(selectedLi).remove();
+                     } else {
+						alert(data.Msg)
+					 }
+                   }
+                 });
+               }
+             }
+           });
+	   }
    </script>
    <style>
    </style>
@@ -169,7 +180,7 @@
 
 <body>
   <div class="row">
-      <div class="col-md-4 col-md-offset-1">
+      <div class="col-md-8 col-md-offset-1">
          <h1 class="logo">{{.UserName}}, Welcome back!</h1>
       </div>
   </div>
@@ -196,6 +207,7 @@
       </div>
       
       <div class="col-md-7">
+	    <h5 id="CurrentChatName">&nbsp</h5>
         <div style="height:450px;overflow-y:scroll;border:1px solid #DDDDDD;">
             <ul class="list-group" id="MsgList">
                 

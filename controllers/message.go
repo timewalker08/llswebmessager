@@ -12,16 +12,16 @@ type MessageController struct {
     beego.Controller
 }
 
-// [Get] Web api. used to get unread messages
-// Url: /message/unread
-func (this *MessageController) GetUnreadMessages() {
+// [Get] Web api. used to get messages
+// Url: /message/all
+func (this *MessageController) GetMessages() {
     var name string
     this.Ctx.Input.Bind(&name, "name")
     am := this.GetLoginAMAndRedictToLoginPageIfNotLoggedin()
 	if am == nil {
 	    return;
 	}
-    msgs, _ := am.GetUnReadMessagesByPage(name, 1, 100)
+    msgs, _ := am.GetMessagesByPage(name, 1, 100)
     this.Data["json"] = msgs
 	if msgs != nil {
 	    fmt.Printf("Get %d messages.\n", len(msgs))

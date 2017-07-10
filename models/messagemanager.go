@@ -101,7 +101,7 @@ func (this *MessageManager) GetUnReadMessageCount() (*map[int]int, error) {
 }
 
 // TODO: support pagination
-func (this *MessageManager) GetUnReadMessagesByPage(fromId int, page int, pageSize int) ([]*Message, error) {
+func (this *MessageManager) GetMessagesByPage(fromId int, page int, pageSize int) ([]*Message, error) {
     if (this.User == nil) {
         return nil, &CommonError {ErrorMsg: "User is not set!"}
     }
@@ -109,8 +109,6 @@ func (this *MessageManager) GetUnReadMessagesByPage(fromId int, page int, pageSi
 	if page <= 0 || pageSize <= 0 {
 	    return nil, &InvalidPaginationPara{Page: page, PageSize: pageSize}
 	}
-	
-	lrmt, _ := this.GetLastReadTime(fromId)
 	
 	toId := this.User.Id
 	
@@ -124,14 +122,9 @@ func (this *MessageManager) GetUnReadMessagesByPage(fromId int, page int, pageSi
 	qs := o.QueryTable("message")
 	qs = qs.SetCond(cond3)
 	
-	if lrmt == nil {
-	    qs.Filter("Messagestatus", NormalMessagestatus).OrderBy("CreatedAt").RelatedSel("From").All(&ms)  //
-	} else {
-        qs.Filter("Messagestatus", NormalMessagestatus).RelatedSel("From").OrderBy("CreatedAt").All(&ms)  //Filter("created_at__gte", &lrmt).
-	}
+    qs.Filter("Messagestatus", NormalMessagestatus).RelatedSel("From").OrderBy("CreatedAt").All(&ms)  //Filter("created_at__gte", &lrmt).
+
 	fmt.Printf("Get %d messages\n", len(ms))
-	if lrmt != nil && len(ms) > 0 {
-	    fmt.Printf("lrmt: %s, message create at: %s\n", (*lrmt).Format("2006-01-02 15:04:05"), ms[0].CreatedAt.Format("2006-01-02 15:04:05"))
-	}
+
     return ms, nil
 }

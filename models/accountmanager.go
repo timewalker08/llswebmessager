@@ -27,7 +27,7 @@ func (this *AccountManager) AddNewFriend(name string) error {
 	}
     friend.CreatedAt = time.Now()
     friend.Friendstatus = NormalFriendStatus
-    if !createOrUpdateFriend(&friend) {
+    if _, err := createOrUpdateFriend(&friend); err != nil {
 	    return &AddFriendFailedError{UserName: this.User.Name, FriendName: name}
 	}
     return nil
@@ -69,6 +69,15 @@ func (this *AccountManager) SendMessage(name string, msgstr string) (*Message, e
 	msg.Messagestatus = NormalMessagestatus
 	msg.CreatedAt = time.Now()
 	
+	var fd Friend
+	fd.User = friend
+	fd.Friend = this.User
+	fd.Friendstatus = NormalFriendStatus
+	fd.CreatedAt = time.Now()
+	if _, err := createOrUpdateFriend(&fd); err != nil {
+	    return nil, &AddFriendFailedError{UserName: name, FriendName: this.User.Name}
+	}
+	
 	return msg, this.MessageManager.SendMessage(msg)
 }
 
@@ -79,13 +88,13 @@ func (this *AccountManager) DeleteMessage(msgId int) error {
     return this.MessageManager.UpdateMessageStatus(msg)
 }
 
-func (this *AccountManager) GetUnReadMessagesByPage(fromName string, page int, pageSize int) ([]*Message, error) {
+func (this *AccountManager) GetMessagesByPage(fromName string, page int, pageSize int) ([]*Message, error) {
     friend := QueryUserByName(fromName)
 	if friend == nil {
 	    return nil, &AccountNotExistError{AccountName: fromName}
 	}
 	
-    msgs, err := this.MessageManager.GetUnReadMessagesByPage(friend.Id, page, pageSize)
+    msgs, err := this.MessageManager.GetMessagesByPage(friend.Id, page, pageSize)
 	if err == nil {
 	    err = this.MessageManager.SetLastReadTime(friend.Id, time.Now())
 	}
@@ -95,7 +104,7 @@ func (this *AccountManager) GetUnReadMessagesByPage(fromName string, page int, p
 	return msgs, nil
 }
 
-func createOrUpdateFriend(friend *Friend) bool {
+func createOrUpdateFriend(friend *Friend) (bool, error) {
     o := orm.NewOrm()
     copyf := *friend
     err := o.Begin()
@@ -104,16 +113,17 @@ func createOrUpdateFriend(friend *Friend) bool {
     if err == nil && !created {
         copyf.Id = friend.Id
         _, err = o.Update(&copyf)
-    }
+    } else if err != nil {
+	    fmt.Printf("error: %s\n", err.Error())
+	}
     
     if err == nil {
         err = o.Commit()
     } else {
         err = o.Rollback()
     }
-    fmt.Println(err)
     
-    return created
+    return created, err
 }
 
 func CreateUserIfNotExistByName (name string, password string) (bool, *User, error) {
