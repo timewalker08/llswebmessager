@@ -22,7 +22,9 @@
                            if (data != null) {
                                $("#NewFriendName").html(data.Name);
                                $("#SearchUserResult").modal("show");
-                           }
+                           } else {
+						       alert("No user with name " + newName + ".");
+						   }
                        }
                    });
                }
@@ -42,7 +44,7 @@
                            if (data != null && data.Code == 0) {
                                alert("Succeeded");
                                $("#SearchUserResult").modal("hide");
-							   var str = '<li class="list-group-item context friend-item"><span class="badge unread-count">0</span><span class="friendname" data-name="' + newName + '">' + newName + '</span></li>'
+							   var str = '<li class="list-group-item context friend-item"><span class="friendname" data-name="' + newName + '">' + newName + '</span></li>'
 							   $("#FriendList").append(str);
 							   FuncFriendItem();
                            } else {

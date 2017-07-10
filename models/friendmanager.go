@@ -12,6 +12,36 @@ type FriendManager struct {
     User *User
 }
 
+func (this *FriendManager) CreateOrUpdateFriend(friend *Friend) (bool, error) {
+    o := orm.NewOrm()
+    copyf := *friend
+    err := o.Begin()
+    
+    created, _, err := o.ReadOrCreate(friend, "User", "Friend");
+    if err == nil {
+        copyf.Id = friend.Id
+        _, err = o.Update(&copyf)
+    }
+    
+    if err == nil {
+        err = o.Commit()
+    } else {
+        err = o.Rollback()
+    }
+    
+    return created, err
+}
+
+func (this *FriendManager) DeleteFriend(user *User, friendOfUser *User) error {
+    friend := Friend{User: user, Friend: friendOfUser}
+    
+    o := orm.NewOrm()
+    o.Read(&friend, "User", "Friend")
+    friend.Friendstatus = DeletedFriendStatus
+    _, err := o.Update(&friend)
+	return err
+}
+
 func (this *FriendManager) GetFriends() ([]*Friend, error) {
 	o := orm.NewOrm()
 	var fs []*Friend

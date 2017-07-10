@@ -15,10 +15,6 @@ type AccountManager struct {
 }
 
 func (this *AccountManager) AddNewFriend(name string) error {
-    if (this.User == nil) {
-        return &CommonError {ErrorMsg: "User is not set!"}
-    }
-    
     var friend Friend
     friend.User = this.User
     friend.Friend = QueryUserByName(name)
@@ -27,33 +23,19 @@ func (this *AccountManager) AddNewFriend(name string) error {
 	}
     friend.CreatedAt = time.Now()
     friend.Friendstatus = NormalFriendStatus
-    if _, err := createOrUpdateFriend(&friend); err != nil {
+    if _, err := this.FriendManager.CreateOrUpdateFriend(&friend); err != nil {
 	    return &AddFriendFailedError{UserName: this.User.Name, FriendName: name}
 	}
     return nil
 }
 
-func (this *AccountManager) DeleteFriendByName(name string) (bool, error) {
-    if (this.User == nil) {
-        ce := CommonError {ErrorMsg: "User is not set!"}
-        return false, &ce
-    }
-    
-    var friend Friend
-    friend.User = this.User
-    friend.Friend = QueryUserByName(name)
-	if (friend.Friend == nil) {
-	    return false, &AccountNotExistError{AccountName: name}
+func (this *AccountManager) DeleteFriendByName(name string) error {
+    friend := QueryUserByName(name)
+	if (friend == nil) {
+	    return &AccountNotExistError{AccountName: name}
 	}
     
-    o := orm.NewOrm()
-    o.Read(&friend, "User", "Friend")
-    friend.Friendstatus = DeletedFriendStatus
-    fmt.Printf("user id: %d, friend id: %d, status id: %d \n", friend.User.Id, friend.Friend.Id, friend.Friendstatus.Id)
-    o.Update(&friend)
-    fmt.Printf("friend %s of %s is deleted\n", name, this.User.Name)
-    
-    return true, nil
+    return this.FriendManager.DeleteFriend(this.User, friend)
 }
 
 func (this *AccountManager) SendMessage(name string, msgstr string) (*Message, error) {
@@ -62,30 +44,27 @@ func (this *AccountManager) SendMessage(name string, msgstr string) (*Message, e
 	    return nil, &AccountNotExistError{AccountName: name}
 	}
 	
-	msg := new(Message)
-	msg.From = this.User
-	msg.To = friend
-	msg.Msg = msgstr
-	msg.Messagestatus = NormalMessagestatus
-	msg.CreatedAt = time.Now()
-	
-	var fd Friend
-	fd.User = friend
-	fd.Friend = this.User
-	fd.Friendstatus = NormalFriendStatus
-	fd.CreatedAt = time.Now()
-	if _, err := createOrUpdateFriend(&fd); err != nil {
+	fd := Friend{User: friend, Friend: this.User, Friendstatus: NormalFriendStatus, CreatedAt: time.Now()}
+	if _, err := this.FriendManager.CreateOrUpdateFriend(&fd); err != nil {
 	    return nil, &AddFriendFailedError{UserName: name, FriendName: this.User.Name}
 	}
 	
+	msg := &Message{From: this.User, To: friend, Msg: msgstr, Messagestatus: NormalMessagestatus, CreatedAt:time.Now()}
 	return msg, this.MessageManager.SendMessage(msg)
 }
 
 func (this *AccountManager) DeleteMessage(msgId int) error {
-    msg := new(Message)
-	msg.Id = msgId
-	msg.Messagestatus = DeletedMessagestatus
-    return this.MessageManager.UpdateMessageStatus(msg)
+    msg, err := this.MessageManager.GetMessageById(msgId)
+	if err == nil {
+	    fmt.Printf("From id: %d, user id: %d\n", msg.From.Id, this.User.Id)
+	    if msg.From.Id != this.User.Id {
+		    return &CommonMessageError{ErrorMessage: fmt.Sprintf("User can only delete messages sent by oneself")}
+		}
+		msg.Messagestatus = DeletedMessagestatus
+	    return this.MessageManager.UpdateMessageStatus(msg)
+	} else {
+	    return err
+	}
 }
 
 func (this *AccountManager) GetMessagesByPage(fromName string, page int, pageSize int) ([]*Message, error) {
@@ -104,41 +83,14 @@ func (this *AccountManager) GetMessagesByPage(fromName string, page int, pageSiz
 	return msgs, nil
 }
 
-func createOrUpdateFriend(friend *Friend) (bool, error) {
-    o := orm.NewOrm()
-    copyf := *friend
-    err := o.Begin()
-    
-    created, _, err := o.ReadOrCreate(friend, "User", "Friend");
-    if err == nil && !created {
-        copyf.Id = friend.Id
-        _, err = o.Update(&copyf)
-    } else if err != nil {
-	    fmt.Printf("error: %s\n", err.Error())
-	}
-    
-    if err == nil {
-        err = o.Commit()
-    } else {
-        err = o.Rollback()
-    }
-    
-    return created, err
-}
-
 func CreateUserIfNotExistByName (name string, password string) (bool, *User, error) {
     o := orm.NewOrm()
-    user := new(User)
-	user.Name = name
-    user.PasswordMd5 = password                                  //TODO: calculate MD5
-    user.CreatedAt = time.Now()
+    user := &User{Name: name, PasswordMd5: password, CreatedAt: time.Now()}  //TODO: calculate MD5
     created, _, err := o.ReadOrCreate(user, "Name")
-	if !created {
+	if !created && err == nil {
 	    return false, nil, &NameAlreadyUsedWhenRegisterError{UserName: name}
 	}
 
-    fmt.Println(err, user.Id)
-	
     return created, user, err
 }
 

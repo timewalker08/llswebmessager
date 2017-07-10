@@ -1,7 +1,7 @@
 package controllers
 
 import (
-    "fmt"
+    //"fmt"
     "llswebmessager/models"
     "github.com/astaxie/beego"
     //"github.com/astaxie/beego/orm"
@@ -31,7 +31,6 @@ func (this *MessageController) GetMessages() {
 // Url: /message/new
 // TODO: should put data in http body.
 func (this *MessageController) SendMessage() {
-    fmt.Println("--------in send message")
     var name string
 	var msgstr string
 	this.Ctx.Input.Bind(&name, "name")
@@ -42,10 +41,8 @@ func (this *MessageController) SendMessage() {
 	}
 	_, err := am.SendMessage(name, msgstr)
 	if err == nil {
-	    fmt.Println("no error")
 	    this.Data["json"] = models.WebApiResult{Code: 0}
 	} else {
-	    fmt.Printf("Some error: %s\n", err.Error())
 	    this.Data["json"] = models.WebApiResult{Code: -1, Msg: err.Error()}
 	}
     this.ServeJSON()
@@ -54,7 +51,6 @@ func (this *MessageController) SendMessage() {
 // [Post] Web api for removing message
 // Url: /message/remove
 func (this *MessageController) DeleteMessage() {
-    fmt.Println("--------in delete message")
     var msgId int
 	this.Ctx.Input.Bind(&msgId, "msgId")
 	am := this.GetLoginAMAndRedictToLoginPageIfNotLoggedin()
@@ -63,10 +59,8 @@ func (this *MessageController) DeleteMessage() {
 	}
 	err := am.DeleteMessage(msgId)
 	if err == nil {
-	    fmt.Println("no error")
 	    this.Data["json"] = models.WebApiResult{Code: 0}
 	} else {
-	    fmt.Printf("Some error: %s\n", err.Error())
 	    this.Data["json"] = models.WebApiResult{Code: -1, Msg: err.Error()}
 	}
 	this.ServeJSON()

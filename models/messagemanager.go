@@ -16,7 +16,6 @@ type MessageManager struct {
 func (this *MessageManager) SendMessage(msg *Message) error {
 	o := orm.NewOrm()
 	_, err := o.Insert(msg)
-	fmt.Printf("New message id: %d", msg.Id)
 	if err != nil {
 	    return &SendMessageError{ErrorDetail:err.Error()}
 	}
@@ -26,25 +25,9 @@ func (this *MessageManager) SendMessage(msg *Message) error {
 func (this *MessageManager) UpdateMessageStatus(msg *Message) error {
     o := orm.NewOrm()
 	if _, err := o.Update(msg, "Messagestatus"); err != nil {
-	    fmt.Printf("Error when updating message status: %s\n", err.Error())
         return &CommonMessageError{ErrorMessage: fmt.Sprintf("Some error occurred when updating message. Error detail: %s", err.Error())}
     }
 	return nil
-}
-
-func (this *MessageManager) GetLastReadTime(fromId int) (*time.Time, error) {
-    if (this.User == nil) {
-        return nil, &CommonError {ErrorMsg: "User is not set!"}
-    }
-	
-    o := orm.NewOrm()
-	
-	lrmt := Lastreadmessagetime{From: &User{Id: fromId}, To: this.User}
-	err := o.Read(&lrmt, "From", "To")
-	if err != nil {
-	    return nil, &CommonMessageError{ErrorMessage: fmt.Sprintf("Some error occurred when getting last read time. Error detail: %s", err.Error())}
-	}
-	return &lrmt.Lastreadtime, nil
 }
 
 func (this *MessageManager) SetLastReadTime(fromId int, lrt time.Time) error {
@@ -98,6 +81,17 @@ func (this *MessageManager) GetUnReadMessageCount() (*map[int]int, error) {
 	    mmp[ik] = iv
 	}
 	return &mmp, nil
+}
+
+func (this *MessageManager) GetMessageById (msgId int) (*Message, error) {
+    msg := &Message{Id: msgId}
+	o := orm.NewOrm()
+	err := o.Read(msg)
+	if err == nil {
+	    return msg, nil
+	} else {
+	    return nil, err
+	}
 }
 
 // TODO: support pagination

@@ -43,7 +43,7 @@ func (this *AccountController) RegisterUser() {
     if err := this.ParseForm(&u); err != nil {
         this.Redirect("/account/register?err=" + err.Error(), 302)
     }
-    saveFormData(this, &u)
+
     if err := checkRegisterUserInfo(&u); err != nil {
         this.Redirect("/account/register?err=" + err.Error(), 302)
     }
@@ -65,7 +65,7 @@ func (this *AccountController) LoginUser() {
     if err := this.ParseForm(&u); err != nil {
         this.Redirect("/account/login?err=" + err.Error(), 302)
     }
-    saveFormData(this, &u)
+
     ret, user, err := models.CheckUserPassword(u.Name, u.Password);
 	if !ret {
         this.Redirect("/account/login?err=" + err.Error(), 302)
@@ -90,10 +90,4 @@ func checkRegisterUserInfo (fuser *formuser) error {
 	    return &models.InvalidUserInfoWhenRegister{ErrorMessage: errstr}
 	}
     return nil
-}
-
-func saveFormData (c *AccountController, u *formuser) {
-    c.Data["Name"] = u.Name
-    c.Data["Password"] = u.Password
-    c.Data["ConfirmPassword"] = u.ConfirmPassword
 }
