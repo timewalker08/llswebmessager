@@ -5,7 +5,7 @@
 
 ## 2 数据库设计
 数据库脚本放在 script/mysql/deploy.sql文件中。总共有6个表。<br /><br />
-user表用于保存注册用户的数据。其中name列保存用户名，password_md5保存用户密码的md5（暂时保存原文）。<br /><br />
+user表用于保存注册用户的数据。其中name列保存用户名，password_md5保存用户密码的md5。<br /><br />
 friend表用于保存朋友关系，主动加好友者为user_id，被动好友者为friend_id。有个状态列friendstatus_id用户指示主动好友者是否删除被动好友者，是指向friendstatus表的外键。<br /><br />
 friendstatus表是domain table，用于保存好友状态名。<br /><br />
 message表用于保存消息，from_id是发送者，to_id是接收者，msg是消息内容，messagestatus_id是消息状态，用于指示是否被删除。<br /><br />
