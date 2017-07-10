@@ -39,14 +39,14 @@ lastreadmessagetime表用于保存用户对好友消息最后的阅读时间。�
 另外写了三个manager用于处理对数据的请求。分别是用于处理账号的AccountManager， 处理好友关系的FriendManager， 处理消息的MessageManager。<br /><br />
 #### AccountManager
 AddNewFriend用于添加好友（底层调用FriendManager的CreateOrUpdateFriend）。<br /><br />
-DeleteFriendByName用于删除好友（底层调用FriendManager的DeleteFriendByName）。<br /><br />
+DeleteFriendByName用于删除好友（底层调用FriendManager的DeleteFriend）。<br /><br />
 SendMessage用于发送消息（底层调用MessageManager的SendMessage）。<br /><br />
 DeleteMessage用于删除消息（底层调用MessageManager的UpdateMessageStatus）。<br /><br />
 GetMessagesByPage用于获取消息（底层调用MessageManager的GetMessagesByPage）。<br /><br />
 
 #### FriendManager
-AddNewFriend用于添加好友。<br /><br />
-DeleteFriendByName用于删除好友。<br /><br />
+CreateOrUpdateFriend用于添加或更新好友。<br /><br />
+DeleteFriendByName用于更新好友状态为Deleted。<br /><br />
 GetFriends用于获取好友。<br /><br />
 
 #### MessageManager
