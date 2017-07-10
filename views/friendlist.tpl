@@ -115,9 +115,9 @@
 	       $("li.friend-item").click(function(e) {
              var name = $("span.friendname", this).attr("data-name");
              currentName = name
-		     $("#CurrentChatName").html(name)
+		     $("#CurrentChatName").html("Talking to " + name)
              $("#MsgList").children().remove();
-			 $("span.unread-count", this).html('0');
+			 $("span.unread-count", this).remove();
              $.ajax({
                type: "get",
                url: "/message/all?name=" + name,
@@ -136,6 +136,7 @@
                      str += n.Msg;
                      str += '</li>'
                      $("#MsgList").append(str);
+					 $("#MsgListWrapper").scrollTop( $("#MsgListWrapper")[0].scrollHeight );
                    });
 				   FuncMsgContextMenu();
                  }
@@ -175,6 +176,9 @@
 	   }
    </script>
    <style>
+       li.friend-item:hover {
+	       background-color: #EEE;
+	   }
    </style>
 </head>
 
@@ -199,7 +203,7 @@
           <ul class="list-group" id="FriendList">
               {{range .FriendList}}
                   <li class="list-group-item context friend-item">
-                      <span class="badge unread-count">{{.UnreadCount}}</span>
+                      {{if .UnreadCount}}<span class="badge unread-count">{{.UnreadCount}}</span>{{end}}
                       <span class="friendname" data-name="{{.Friend.Friend.Name}}">{{.Friend.Friend.Name}}</span>
                   </li>
               {{end}}
@@ -208,7 +212,7 @@
       
       <div class="col-md-7">
 	    <h5 id="CurrentChatName">&nbsp</h5>
-        <div style="height:450px;overflow-y:scroll;border:1px solid #DDDDDD;">
+        <div id="MsgListWrapper" style="height:450px;overflow-y:scroll;border:1px solid #DDDDDD;">
             <ul class="list-group" id="MsgList">
                 
             </ul>
