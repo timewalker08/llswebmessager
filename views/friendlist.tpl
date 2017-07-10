@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>好友列表</title>
+  <title>Friend list</title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
    <link href="/static/css/bootstrap.css" rel="stylesheet" type="text/css"/>
    
