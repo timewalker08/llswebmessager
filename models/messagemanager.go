@@ -113,8 +113,8 @@ func (this *MessageManager) GetMessagesByPage(fromId int, page int, pageSize int
 	toId := this.User.Id
 	
 	cond := orm.NewCondition()
-    cond1 := cond.And("from_id", fromId).And("to_id", toId)
-	cond2 := cond.And("from_id", toId).And("to_id", fromId)
+    cond1 := cond.And("from_id", fromId).And("to_id", toId).And("messagestatus_id", NormalMessagestatus)
+	cond2 := cond.And("from_id", toId).And("to_id", fromId).And("messagestatus_id", NormalMessagestatus)
 	cond3 := cond1.OrCond(cond2)
 	
 	o := orm.NewOrm()
@@ -122,7 +122,7 @@ func (this *MessageManager) GetMessagesByPage(fromId int, page int, pageSize int
 	qs := o.QueryTable("message")
 	qs = qs.SetCond(cond3)
 	
-    qs.Filter("Messagestatus", NormalMessagestatus).RelatedSel("From").OrderBy("CreatedAt").All(&ms)  //Filter("created_at__gte", &lrmt).
+    qs.RelatedSel("From").OrderBy("CreatedAt").All(&ms)  //Filter("created_at__gte", &lrmt).
 
 	fmt.Printf("Get %d messages\n", len(ms))
 

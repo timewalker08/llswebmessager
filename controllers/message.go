@@ -23,9 +23,7 @@ func (this *MessageController) GetMessages() {
 	}
     msgs, _ := am.GetMessagesByPage(name, 1, 100)
     this.Data["json"] = msgs
-	if msgs != nil {
-	    fmt.Printf("Get %d messages.\n", len(msgs))
-	}
+
     this.ServeJSON()
 }
 
