@@ -38,7 +38,7 @@ lastreadmessagetime表用于保存用户对好友消息最后的阅读时间。�
 基本的struct放在 models/models.go文件中。主要包括 User, Friendstatus, Friend, FriendWithUnReadCount, Messagestatus, Message, Lastreadmessagetime。<br /><br />
 另外写了三个manager用于处理对数据的请求。分别是用于处理账号的AccountManager， 处理好友关系的FriendManager， 处理消息的MessageManager。<br /><br />
 #### AccountManager
-AddNewFriend用于添加好友（底层调用FriendManager的AddNewFriend）。<br /><br />
+AddNewFriend用于添加好友（底层调用FriendManager的CreateOrUpdateFriend）。<br /><br />
 DeleteFriendByName用于删除好友（底层调用FriendManager的DeleteFriendByName）。<br /><br />
 SendMessage用于发送消息（底层调用MessageManager的SendMessage）。<br /><br />
 DeleteMessage用于删除消息（底层调用MessageManager的UpdateMessageStatus）。<br /><br />
