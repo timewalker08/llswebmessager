@@ -3,7 +3,7 @@ package models
 import (
     "fmt"
     "time"
-    //"llswebmessager/tools"
+    "llswebmessager/tools"
     "github.com/astaxie/beego/orm"
     _ "github.com/go-sql-driver/mysql"
 )
@@ -85,7 +85,7 @@ func (this *AccountManager) GetMessagesByPage(fromName string, page int, pageSiz
 
 func CreateUserIfNotExistByName (name string, password string) (bool, *User, error) {
     o := orm.NewOrm()
-    user := &User{Name: name, PasswordMd5: password, CreatedAt: time.Now()}  //TODO: calculate MD5
+    user := &User{Name: name, PasswordMd5: tools.GetMD5(password), CreatedAt: time.Now()}
     created, _, err := o.ReadOrCreate(user, "Name")
     if !created && err == nil {
         return false, nil, &NameAlreadyUsedWhenRegisterError{UserName: name}
@@ -99,7 +99,7 @@ func CheckUserPassword (name string, password string) (bool, *User, error) {
     user := new(User)
     user.Name = name
     err := o.Read(user, "Name")
-    if (err == nil && user.PasswordMd5 == password) {
+    if (err == nil && user.PasswordMd5 == tools.GetMD5(password)) {
         return true, user, nil
     } else {
         return false, nil, &LoginError{UserName: name, Password: password}
