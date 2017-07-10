@@ -11,7 +11,7 @@ type User struct {
     PasswordMd5 string
     CreatedAt   time.Time
     Friend      []*Friend `orm:"reverse(many)"`
-	Message     []*Message `orm:"reverse(many)"`
+    Message     []*Message `orm:"reverse(many)"`
 }
 
 type Friendstatus struct {
@@ -29,7 +29,7 @@ type Friend struct {
 
 type FriendWithUnReadCount struct {
     Friend *Friend
-	UnreadCount int
+    UnreadCount int
 }
 
 type Messagestatus struct {
@@ -39,18 +39,18 @@ type Messagestatus struct {
 
 type Message struct {
     Id          int
-	From        *User `orm:"rel(fk)"`
+    From        *User `orm:"rel(fk)"`
     To          *User `orm:"rel(fk)"`
-	Msg         string
-	Messagestatus *Messagestatus `orm:"rel(fk)"`
-	CreatedAt   time.Time
+    Msg         string
+    Messagestatus *Messagestatus `orm:"rel(fk)"`
+    CreatedAt   time.Time
 }
 
 type Lastreadmessagetime struct {
     Id          int
     From        *User `orm:"rel(fk)"`
     To          *User `orm:"rel(fk)"`
-	Lastreadtime time.Time
+    Lastreadtime time.Time
 }
 
 func init() {

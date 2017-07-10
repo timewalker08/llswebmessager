@@ -11,7 +11,7 @@
   <div class="row">
       <div class="col-md-4 col-md-offset-1">
          <h1 class="logo">Login</h1>
-	  </div>
+      </div>
   </div>
   <div class="row">
       {{if .HasError}}

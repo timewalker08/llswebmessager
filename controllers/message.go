@@ -18,9 +18,9 @@ func (this *MessageController) GetMessages() {
     var name string
     this.Ctx.Input.Bind(&name, "name")
     am := this.GetLoginAMAndRedictToLoginPageIfNotLoggedin()
-	if am == nil {
-	    return;
-	}
+    if am == nil {
+        return;
+    }
     msgs, _ := am.GetMessagesByPage(name, 1, 100)
     this.Data["json"] = msgs
 
@@ -32,19 +32,19 @@ func (this *MessageController) GetMessages() {
 // TODO: should put data in http body.
 func (this *MessageController) SendMessage() {
     var name string
-	var msgstr string
-	this.Ctx.Input.Bind(&name, "name")
-	this.Ctx.Input.Bind(&msgstr, "msg")
+    var msgstr string
+    this.Ctx.Input.Bind(&name, "name")
+    this.Ctx.Input.Bind(&msgstr, "msg")
     am := this.GetLoginAMAndRedictToLoginPageIfNotLoggedin()
-	if am == nil {
-	    return
-	}
-	_, err := am.SendMessage(name, msgstr)
-	if err == nil {
-	    this.Data["json"] = models.WebApiResult{Code: 0}
-	} else {
-	    this.Data["json"] = models.WebApiResult{Code: -1, Msg: err.Error()}
-	}
+    if am == nil {
+        return
+    }
+    _, err := am.SendMessage(name, msgstr)
+    if err == nil {
+        this.Data["json"] = models.WebApiResult{Code: 0}
+    } else {
+        this.Data["json"] = models.WebApiResult{Code: -1, Msg: err.Error()}
+    }
     this.ServeJSON()
 }
 
@@ -52,18 +52,18 @@ func (this *MessageController) SendMessage() {
 // Url: /message/remove
 func (this *MessageController) DeleteMessage() {
     var msgId int
-	this.Ctx.Input.Bind(&msgId, "msgId")
-	am := this.GetLoginAMAndRedictToLoginPageIfNotLoggedin()
-	if am == nil {
-	    return
-	}
-	err := am.DeleteMessage(msgId)
-	if err == nil {
-	    this.Data["json"] = models.WebApiResult{Code: 0}
-	} else {
-	    this.Data["json"] = models.WebApiResult{Code: -1, Msg: err.Error()}
-	}
-	this.ServeJSON()
+    this.Ctx.Input.Bind(&msgId, "msgId")
+    am := this.GetLoginAMAndRedictToLoginPageIfNotLoggedin()
+    if am == nil {
+        return
+    }
+    err := am.DeleteMessage(msgId)
+    if err == nil {
+        this.Data["json"] = models.WebApiResult{Code: 0}
+    } else {
+        this.Data["json"] = models.WebApiResult{Code: -1, Msg: err.Error()}
+    }
+    this.ServeJSON()
 }
 
 //TODO: refactor

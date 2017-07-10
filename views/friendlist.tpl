@@ -23,8 +23,8 @@
                                $("#NewFriendName").html(data.Name);
                                $("#SearchUserResult").modal("show");
                            } else {
-						       alert("No user with name " + newName + ".");
-						   }
+                               alert("No user with name " + newName + ".");
+                           }
                        }
                    });
                }
@@ -44,12 +44,12 @@
                            if (data != null && data.Code == 0) {
                                alert("Succeeded");
                                $("#SearchUserResult").modal("hide");
-							   var str = '<li class="list-group-item context friend-item"><span class="friendname" data-name="' + newName + '">' + newName + '</span></li>'
-							   $("#FriendList").append(str);
-							   FuncFriendItem();
+                               var str = '<li class="list-group-item context friend-item"><span class="friendname" data-name="' + newName + '">' + newName + '</span></li>'
+                               $("#FriendList").append(str);
+                               FuncFriendItem();
                            } else {
-						       alert(data.Msg)
-						   }
+                               alert(data.Msg)
+                           }
                        }
                    });
                }
@@ -78,23 +78,23 @@
                    }
                });
            });
-		   
-		   FuncFriendItem();
+           
+           FuncFriendItem();
        });
-	   
-	   function FuncMsgContextMenu() {
-	       $('li.self-msg-context').contextmenu({
+       
+       function FuncMsgContextMenu() {
+           $('li.self-msg-context').contextmenu({
              target:'#msg-context-menu', 
              before: function(e,context) {
                // execute code before context menu if shown
                //alert($(e.target).attr("data-msg-id"));
                $("#DeleteMessage").attr("data-msg-id", $(e.target).attr("data-msg-id"));
-			   $("#DeleteMessage").attr("data-msg", $(e.target).html());
+               $("#DeleteMessage").attr("data-msg", $(e.target).html());
              },
              onItem: function(context,e) {
                // execute on menu item selection
                var msgId = $(e.target).attr("data-msg-id");
-			   var msg = $(e.target).attr("data-msg");
+               var msg = $(e.target).attr("data-msg");
                if (confirm("Are you sure to delete message " + msg) == true) {
                  $.ajax({
                    type: "post",
@@ -111,15 +111,15 @@
                }
              }
            });
-	   }
-	   
-	   function FuncFriendItem() {
-	       $("li.friend-item").click(function(e) {
+       }
+       
+       function FuncFriendItem() {
+           $("li.friend-item").click(function(e) {
              var name = $("span.friendname", this).attr("data-name");
              currentName = name
-		     $("#CurrentChatName").html("Talking to " + name)
+             $("#CurrentChatName").html("Talking to " + name)
              $("#MsgList").children().remove();
-			 $("span.unread-count", this).remove();
+             $("span.unread-count", this).remove();
              $.ajax({
                type: "get",
                url: "/message/all?name=" + name,
@@ -138,15 +138,15 @@
                      str += n.Msg;
                      str += '</li>'
                      $("#MsgList").append(str);
-					 $("#MsgListWrapper").scrollTop( $("#MsgListWrapper")[0].scrollHeight );
+                     $("#MsgListWrapper").scrollTop( $("#MsgListWrapper")[0].scrollHeight );
                    });
-				   FuncMsgContextMenu();
+                   FuncMsgContextMenu();
                  }
                }
              });
            });
-		   
-		   $('.context').contextmenu({
+           
+           $('.context').contextmenu({
              target:'#context-menu', 
              before: function(e,context) {
                // execute code before context menu if shown
@@ -168,19 +168,19 @@
                         var selectedLi = $(selectedSpan).parents("li");
                         $(selectedLi).remove();
                      } else {
-						alert(data.Msg)
-					 }
+                        alert(data.Msg)
+                     }
                    }
                  });
                }
              }
            });
-	   }
+       }
    </script>
    <style>
        li.friend-item:hover {
-	       background-color: #EEE;
-	   }
+           background-color: #EEE;
+       }
    </style>
 </head>
 
@@ -213,7 +213,7 @@
       </div>
       
       <div class="col-md-7">
-	    <h5 id="CurrentChatName">&nbsp</h5>
+        <h5 id="CurrentChatName">&nbsp</h5>
         <div id="MsgListWrapper" style="height:450px;overflow-y:scroll;border:1px solid #DDDDDD;">
             <ul class="list-group" id="MsgList">
                 

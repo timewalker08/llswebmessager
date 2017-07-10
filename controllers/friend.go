@@ -16,20 +16,20 @@ func (this *FriendController) List() {
     am := this.GetLoginAMAndRedictToLoginPageIfNotLoggedin()
     
     fs, _ := am.FriendManager.GetFriends()
-	mmp, _ := am.MessageManager.GetUnReadMessageCount()
-	
-	var fcs []*models.FriendWithUnReadCount
-	if (fs != nil && len(fs) > 0) {
-	    for _, f := range fs {
-		    count := 0
-			if cc, ok := (*mmp)[f.Friend.Id]; ok {
-			    count = cc
-			}
-	        fcs = append(fcs, &models.FriendWithUnReadCount{Friend: f, UnreadCount: count})
-		}
-	}
+    mmp, _ := am.MessageManager.GetUnReadMessageCount()
+    
+    var fcs []*models.FriendWithUnReadCount
+    if (fs != nil && len(fs) > 0) {
+        for _, f := range fs {
+            count := 0
+            if cc, ok := (*mmp)[f.Friend.Id]; ok {
+                count = cc
+            }
+            fcs = append(fcs, &models.FriendWithUnReadCount{Friend: f, UnreadCount: count})
+        }
+    }
 
-	this.Data["UserName"] = am.User.Name
+    this.Data["UserName"] = am.User.Name
     this.Data["FriendList"] = fcs;
     this.TplName = "friendlist.tpl"
 }
@@ -50,9 +50,9 @@ func (this *FriendController) AddFriend() {
     var name string
     this.Ctx.Input.Bind(&name, "name")
     am := this.GetLoginAMAndRedictToLoginPageIfNotLoggedin()
-	if am == nil {
-	    return;
-	}
+    if am == nil {
+        return;
+    }
     err := am.AddNewFriend(name)
     if err == nil {
       this.Data["json"] = models.WebApiResult{Code: 0}
@@ -68,9 +68,9 @@ func (this *FriendController) DeleteFriend() {
     var name string
     this.Ctx.Input.Bind(&name, "name")
     am := this.GetLoginAMAndRedictToLoginPageIfNotLoggedin()
-	if am == nil {
-	    return;
-	}
+    if am == nil {
+        return;
+    }
     err := am.DeleteFriendByName(name)
     if err == nil {
       this.Data["json"] = models.WebApiResult{Code: 0}

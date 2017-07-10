@@ -53,8 +53,8 @@ func (this *AccountController) RegisterUser() {
     if (!created) {
         this.Redirect("/account/register?err=" + err.Error(), 302)
     } else {
-	    this.SetSession(models.LoginSessionKey, &models.AccountManager{User: user, FriendManager: &models.FriendManager{User: user}, MessageManager: &models.MessageManager{User: user}})
-	}
+        this.SetSession(models.LoginSessionKey, &models.AccountManager{User: user, FriendManager: &models.FriendManager{User: user}, MessageManager: &models.MessageManager{User: user}})
+    }
     
     this.Redirect("/friend/list", 302)
 }
@@ -67,11 +67,11 @@ func (this *AccountController) LoginUser() {
     }
 
     ret, user, err := models.CheckUserPassword(u.Name, u.Password);
-	if !ret {
+    if !ret {
         this.Redirect("/account/login?err=" + err.Error(), 302)
     } else {
-	    this.SetSession(models.LoginSessionKey, &models.AccountManager{User: user, FriendManager: &models.FriendManager{User: user}, MessageManager: &models.MessageManager{User: user}})
-	}
+        this.SetSession(models.LoginSessionKey, &models.AccountManager{User: user, FriendManager: &models.FriendManager{User: user}, MessageManager: &models.MessageManager{User: user}})
+    }
     
     this.Redirect("/friend/list", 302)
 }
@@ -79,15 +79,15 @@ func (this *AccountController) LoginUser() {
 func checkRegisterUserInfo (fuser *formuser) error {
     var errstr string = ""
     if (fuser.Name == "") {
-	    errstr = "Name should not be empty. Please input a name."
+        errstr = "Name should not be empty. Please input a name."
     } else if (len(fuser.Password) < 6) {
-	    errstr = "Password should be longer than 6 characters."
-	} else if (fuser.Password != fuser.ConfirmPassword) {
-	    errstr = "The password and confirmation password do not match."
-	}
-	if errstr != "" {
-	    fmt.Println("invalid register user info: %s", errstr)
-	    return &models.InvalidUserInfoWhenRegister{ErrorMessage: errstr}
-	}
+        errstr = "Password should be longer than 6 characters."
+    } else if (fuser.Password != fuser.ConfirmPassword) {
+        errstr = "The password and confirmation password do not match."
+    }
+    if errstr != "" {
+        fmt.Println("invalid register user info: %s", errstr)
+        return &models.InvalidUserInfoWhenRegister{ErrorMessage: errstr}
+    }
     return nil
 }
